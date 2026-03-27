@@ -171,6 +171,19 @@ Compare Sony vs Nintendo as investment targets with a final recommendation.
 - OpenRouter
 - Ollama（ローカルLLM）
 
+### メッセージング連携
+
+CLIだけでなく、チャットアプリ経由でも使える。`bun run gateway` で起動:
+
+| チャネル | 方式 | 公開URL | 環境変数 |
+|---------|------|---------|---------|
+| **Slack** | Socket Mode (WebSocket) | 不要 | `SLACK_BOT_TOKEN` + `SLACK_APP_TOKEN` |
+| **Discord** | Gateway (WebSocket) | 不要 | `DISCORD_BOT_TOKEN` |
+| **LINE** | Webhook (HTTP) | 必要 | `LINE_CHANNEL_SECRET` + `LINE_CHANNEL_ACCESS_TOKEN` |
+| WhatsApp | Baileys (WebSocket) | 不要 | QRコードでログイン |
+
+設定された環境変数に応じて、対応するチャネルだけが起動する。複数チャネル同時稼働可能。
+
 ## データソース
 
 | ソース | 内容 | 必須？ |
