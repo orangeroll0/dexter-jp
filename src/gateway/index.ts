@@ -136,3 +136,37 @@ async function run(): Promise<void> {
 
 void run();
 
+// ===== HonoでHTTPサーバーを追加（Render対応）=====
+import { Hono } from 'hono'
+import { serve } from 'hono/bun'
+
+const api = new Hono()
+
+// Tomorrow Edgeから呼び出したいエンドポイント
+api.get('/api/analyze', async (c) => {
+  const prompt = c.req.query('prompt') || c.req.query('query')
+  if (!prompt) {
+    return c.json({ error: 'prompt is required' }, 400)
+  }
+
+  try {
+    // ここに既存のDexterエージェント呼び出しを入れる
+    const result = await runDexterAnalysis(prompt)  // あなたの関数に置き換え
+    return c.json({ success: true, analysis: result })
+  } catch (e: any) {
+    return c.json({ error: e.message }, 500)
+  }
+})
+
+api.get('/', (c) => c.text('Dexter JP API is running!'))
+
+// Render用にPORTを尊重して起動
+const port = parseInt(process.env.PORT || '3000')
+console.log(`HTTP server listening on http://0.0.0.0:${port}`)
+
+serve({
+  fetch: api.fetch,
+  port,
+  hostname: '0.0.0.0'
+})
+
