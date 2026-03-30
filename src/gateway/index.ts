@@ -162,7 +162,8 @@ app.post('/api/analyze', async (c) => {
     console.log(`[API] Prompt received: ${prompt}`);
 
     const agent = await Agent.create({
-      model: 'gpt-4o',
+      model: 'gemini-1.5-pro', 
+      maxIterations: 10
     });
 
     let finalAnswer = "";
