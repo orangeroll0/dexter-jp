@@ -162,8 +162,7 @@ app.post('/api/analyze', async (c) => {
     console.log(`[API] Prompt received: ${prompt}`);
 
     const agent = await Agent.create({
-      model: 'gemini-2.0-flash',
-      maxIterations: 10
+      model: 'gemini-2.0-flash'
     });
 
     let finalAnswer = "";
