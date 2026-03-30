@@ -206,6 +206,8 @@ export async function callLlm(prompt: string, options: CallLlmOptions = {}): Pro
 
   const llm = getChatModel(model, false);
 
+  const provider = resolveProvider(model);
+  
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let runnable: Runnable<any, any> = llm;
 
@@ -219,7 +221,6 @@ export async function callLlm(prompt: string, options: CallLlmOptions = {}): Pro
   }
 
   const invokeOpts = signal ? { signal } : undefined;
-  const provider = resolveProvider(model);
   let result;
 
   if (provider.id === 'anthropic') {
