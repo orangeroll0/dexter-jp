@@ -211,7 +211,10 @@ export async function callLlm(prompt: string, options: CallLlmOptions = {}): Pro
 
   if (outputSchema) {
     runnable = llm.withStructuredOutput(outputSchema, { strict: false });
-  } else if (tools && tools.length > 0 && llm.bindTools) {
+  //} else if (tools && tools.length > 0 && llm.bindTools) {
+  //  runnable = llm.bindTools(tools);
+  //}
+  } else if (provider.id !== 'google' && tools && tools.length > 0 && llm.bindTools) {
     runnable = llm.bindTools(tools);
   }
 
