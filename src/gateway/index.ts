@@ -136,37 +136,67 @@ async function run(): Promise<void> {
 
 void run();
 
-// ===== HonoでHTTPサーバーを追加（Render対応）=====
+// ======================
+// Hono HTTP APIサーバー（Tomorrow Edge連携用）
+// ======================
 import { Hono } from 'hono'
-import { serve } from 'hono/bun'
+import { cors } from 'hono/cors'
+import { serve } from '@hono/node-server'   // あなたの指摘通りNode.js向け
 
-const api = new Hono()
+import { Agent } from '../agent/agent'
 
-// Tomorrow Edgeから呼び出したいエンドポイント
-api.get('/api/analyze', async (c) => {
-  const prompt = c.req.query('prompt') || c.req.query('query')
-  if (!prompt) {
-    return c.json({ error: 'prompt is required' }, 400)
-  }
+const app = new Hono()
 
+app.use('/*', cors())
+
+app.get('/', (c) => c.text('Dexter JP API is running! ✅'))
+
+app.post('/api/analyze', async (c) => {
   try {
-    // ここに既存のDexterエージェント呼び出しを入れる
-    const result = await runDexterAnalysis(prompt)  // あなたの関数に置き換え
-    return c.json({ success: true, analysis: result })
-  } catch (e: any) {
-    return c.json({ error: e.message }, 500)
+    const { prompt } = await c.req.json();
+
+    if (!prompt) {
+      return c.json({ success: false, error: 'prompt is required' }, 400);
+    }
+
+    console.log(`[API] Prompt received: ${prompt}`);
+
+    const agent = await Agent.create({
+      model: 'gpt-4o',
+    });
+
+    let finalAnswer = "";
+
+    for await (const event of agent.run(prompt)) {
+      if (event.type === 'thinking') {
+        console.log('Thinking:', event.message);
+      }
+      if (event.type === 'tool_call') {
+        console.log('Tool:', event.toolName);
+      }
+      if (event.type === 'done') {
+        finalAnswer = event.answer;
+      }
+    }
+
+    return c.json({
+      success: true,
+      analysis: finalAnswer
+    });
+
+  } catch (error: any) {
+    console.error('Dexter Run Error:', error);
+    return c.json({ 
+      success: false, 
+      error: error.message || '分析中にエラーが発生しました' 
+    }, 500);
   }
-})
+});
 
-api.get('/', (c) => c.text('Dexter JP API is running!'))
-
-// Render用にPORTを尊重して起動
-const port = parseInt(process.env.PORT || '3000')
-console.log(`HTTP server listening on http://0.0.0.0:${port}`)
+const port = Number(process.env.PORT) || 10000;
+console.log(`🚀 Dexter API server listening on port ${port}`);
 
 serve({
-  fetch: api.fetch,
-  port,
-  hostname: '0.0.0.0'
-})
-
+  fetch: app.fetch,
+  port
+});
