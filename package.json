@@ -32,7 +32,6 @@
     "@mariozechner/pi-tui": "^0.52.12",
     "@mozilla/readability": "^0.6.0",
     "@slack/bolt": "^4.6.0",
-    "@whiskeysockets/baileys": "7.0.0-rc.9",
     "better-sqlite3": "^12.8.0",
     "croner": "^9.1.0",
     "diff": "^8.0.4",
